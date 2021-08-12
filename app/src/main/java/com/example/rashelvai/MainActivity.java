@@ -37,7 +37,53 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
        // main activity
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
+        Button pick = findViewById(R.id.pick);
+        Button send = findViewById(R.id.send);
+
+        pick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
+                intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+                        .setCheckPermission(true)
+                        .setShowImages(true)
+                        .enableImageCapture(true)
+                        .setMaxSelection(1)
+                        .setSkipZeroSizeFiles(true)
+                        .build());
+                startActivityForResult(intent, 101);
+            }
+        });
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                File originalFile = new File(path);
+
+                RequestBody cvPart =  RequestBody.create(MediaType.parse("multipart/form-data"), originalFile);
+                MultipartBody.Part file =  MultipartBody.Part.createFormData("file", originalFile.getName(), cvPart);
+
+                ApiInterface apiInterface = RetrofitApiClient.getClient().create(ApiInterface.class);
+                Call<Response> call = apiInterface.sendData(file);
+                call.enqueue(new Callback<Response>() {
+                    @Override
+                    public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                        Log.d("TAG", "onResponse: "+response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Response> call, Throwable t) {
+                        Log.d("TAG", "onFailure: "+t.getMessage());
+                    }
+                });
+            }
+        });
 
     }
 
