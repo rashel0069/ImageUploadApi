@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+    <domain-config>
+        <domain includeSubdomains="true"
+            cleartextTrafficPermitted="true">http://digitalistic.co:9000</domain>
+    </domain-config>
+</network-security-config>
